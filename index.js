@@ -4,6 +4,30 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+// ランダムな単語を選択する関数
+function chooseWord(words) {
+  return words[Math.floor(Math.random() * words.length)];
+}
+
+// アンダーバーで単語を表現する関数
+function createDisplayWord(word) {
+  return Array(word.length).fill("_");
+}
+
+// 入力された文字が単語に含まれるかチェックし、対応する位置のアンダーバーを置き換える関数
+function guessLetter(word, guessedWord, letter) {
+  const newGuessedWord = [...guessedWord];
+  let letterFound = false;
+  for (let i = 0; i < word.length; i++) {
+    if (word[i] === letter && newGuessedWord[i] === "_") {
+      newGuessedWord[i] = letter;
+      letterFound = true;
+    }
+  }
+  return [letterFound, newGuessedWord];
+}
+
+// 以下はその他のゲームのロジック
 const words = [
   "apple",
   "banana",
@@ -16,13 +40,9 @@ const words = [
   "kiwi",
   "watermelon",
 ];
-// words の中からランダムに単語を選択
-const targetWord = words[Math.floor(Math.random() * words.length)];
-// targetWord の文字数分のアンダーバーを表示
-const displayWord = Array(targetWord.length).fill("_");
-// プレイヤーが間違えられる回数
+const targetWord = chooseWord(words);
+let displayWord = createDisplayWord(targetWord);
 const MAX_TRIES = 5;
-// プレイヤーが間違えた回数
 let triesLeft = MAX_TRIES;
 
 console.log("単語あてゲームを開始します！");
@@ -52,13 +72,8 @@ function gameLoop() {
       return;
     }
 
-    let letterFound = false;
-    for (let i = 0; i < targetWord.length; i++) {
-      if (targetWord[i] === letter && displayWord[i] === "_") {
-        displayWord[i] = letter;
-        letterFound = true;
-      }
-    }
+    const [letterFound, newDisplayWord] = guessLetter(targetWord, displayWord, letter);
+    displayWord = newDisplayWord;
 
     if (!letterFound) {
       triesLeft--;
@@ -67,3 +82,5 @@ function gameLoop() {
     gameLoop();
   });
 }
+
+module.exports = { chooseWord, createDisplayWord, guessLetter };
