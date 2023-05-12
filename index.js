@@ -27,7 +27,6 @@ function guessLetter(word, guessedWord, letter) {
   return [letterFound, newGuessedWord];
 }
 
-// 以下はその他のゲームのロジック
 const words = [
   "apple",
   "banana",
@@ -44,6 +43,7 @@ const targetWord = chooseWord(words);
 let displayWord = createDisplayWord(targetWord);
 const MAX_TRIES = 5;
 let triesLeft = MAX_TRIES;
+let guessedLetters = [];
 
 console.log("単語あてゲームを開始します！");
 gameLoop();
@@ -53,13 +53,13 @@ function gameLoop() {
   console.log(`残り失敗可能数: ${triesLeft}`);
 
   if (!displayWord.includes("_")) {
-    console.log(`勝利！単語は ${targetWord} でした！`);
+    console.log(`\n勝利！単語は ${targetWord} でした！`);
     rl.close();
     return;
   }
 
   if (triesLeft <= 0) {
-    console.log(`残念！単語は ${targetWord} でした。`);
+    console.log(`\n残念！単語は ${targetWord} でした。`);
     rl.close();
     return;
   }
@@ -67,17 +67,29 @@ function gameLoop() {
   rl.question("アルファベットを1文字入力してください: ", (input) => {
     const letter = input.toLowerCase();
     if (letter.length !== 1 || !/^[a-z]$/.test(letter)) {
-      console.log("無効な入力です。アルファベット1文字で入力してください。");
+      console.log("\n無効な入力です。アルファベット1文字で入力してください。");
       gameLoop();
       return;
     }
 
-    const [letterFound, newDisplayWord] = guessLetter(targetWord, displayWord, letter);
+    if (guessedLetters.includes(letter)) {
+      console.log(`\n[${letter}]は既に入力済みです`);
+      gameLoop();
+      return;
+    }
+
+    const [letterFound, newDisplayWord] = guessLetter(
+      targetWord,
+      displayWord,
+      letter
+    );
     displayWord = newDisplayWord;
 
     if (!letterFound) {
       triesLeft--;
     }
+
+    guessedLetters.push(letter);
 
     gameLoop();
   });
